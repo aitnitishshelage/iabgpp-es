@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT }}
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -31,13 +34,18 @@ jobs:
           jq --arg ver "$VERSION" '.version = $ver' package.json > temp.json && mv temp.json package.json
           jq --arg ver "$VERSION" '.version = $ver' modules/cmpapi/package.json > temp.json && mv temp.json modules/cmpapi/package.json
           jq --arg ver "$VERSION" '.version = $ver' modules/stub/package.json > temp.json && mv temp.json modules/stub/package.json
-      - name: Commit and Push Changes
+      - name: Check input version TAG
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
           git status
           VERSION="${{ github.event.inputs.environment }}"
           echo "Release v  $VERSION"
+          if git show-ref --tags --verify --quiet "refs/tags/${VERSION}"; then
+            echo "Tag ${VERSION} exists"
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag ${VERSION} does not exist"
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
       - name: Publish to NPM
         run: | 
           npm --version
@@ -45,13 +53,14 @@ jobs:
           pwd
           cd ../cmpapi
           pwd
-          
+        if: steps.check.outputs.version_changed == 'true'
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-      - name: Create GitHub Release
+      - name: Commit and Push Changes
         run: |
           VERSION="${{ github.event.inputs.environment }}"
           echo "version $VERSION"
           gh release list
+        if: steps.check.outputs.version_changed == 'true'
         env:
           GITHUB_TOKEN: ${{secrets.PAT}}
