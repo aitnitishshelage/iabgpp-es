@@ -42,9 +42,9 @@ jobs:
         run: | 
           npm --version
           cd modules/stub
-          ls
+          pwd
           cd ../cmpapi
-          ls
+          pwd
           
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
