@@ -45,7 +45,7 @@ jobs:
           ls
           cd ../cmpapi
           ls
-          npm team ls iabgpp
+          
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Create GitHub Release
