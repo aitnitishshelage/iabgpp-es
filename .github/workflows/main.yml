@@ -18,6 +18,12 @@ jobs:
         with:
           node-version: 20
           registry-url: "https://registry.npmjs.org/"
+      - name: Install packages
+        run: npm install
+      - name: Build modules
+        run: npm run build
+      - name: Test
+        run: npm run test
       - name: Update package.json version
         run: |
           VERSION="${{ github.event.inputs.environment }}"
@@ -33,7 +39,12 @@ jobs:
           VERSION="${{ github.event.inputs.environment }}"
           echo "Release v  $VERSION"
       - name: Publish to NPM
-        run: npm --version
+        run: | 
+          npm --version
+          cd modules/stub
+          ls
+          cd ../cmpapi
+          ls
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Create GitHub Release
