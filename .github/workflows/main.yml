@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          registry-url: "https://registry.npmjs.org/"
+          registry-url: "https://registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}"
       - name: Install packages
         run: npm install
       - name: Build modules
