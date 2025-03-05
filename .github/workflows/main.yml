@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          registry-url: "https://registry.npmjs.org/:_authToken=${{secrets.NPM_TOKEN}}"
+          registry-url: "https://registry.npmjs.org/"
       - name: Install packages
         run: npm install
       - name: Build modules
@@ -45,7 +45,6 @@ jobs:
           ls
           cd ../cmpapi
           ls
-          npm org ls iabgpp aitnitishshelage
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Create GitHub Release
