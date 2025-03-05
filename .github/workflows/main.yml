@@ -1,0 +1,43 @@
+name: NPM Release Automation
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The library release version'
+        required: true
+        default: ''
+      
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org/"
+      - name: Update package.json version
+        run: |
+          VERSION="${{ github.event.inputs.environment }}"
+          echo "Release v  $VERSION"
+          jq --arg ver "$VERSION" '.version = $ver' package.json > temp.json && mv temp.json package.json
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git status
+          VERSION="${{ github.event.inputs.environment }}"
+          echo "Release v  $VERSION"
+      - name: Publish to NPM
+        run: npm --version
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create GitHub Release
+        run: |
+          VERSION="${{ github.event.inputs.environment }}"
+          echo "version $VERSION"
+          gh release list
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
