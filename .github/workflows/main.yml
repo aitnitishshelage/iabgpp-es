@@ -23,6 +23,8 @@ jobs:
           VERSION="${{ github.event.inputs.environment }}"
           echo "Release v  $VERSION"
           jq --arg ver "$VERSION" '.version = $ver' package.json > temp.json && mv temp.json package.json
+          jq --arg ver "$VERSION" '.version = $ver' modules/cmpapi/package.json > temp.json && mv temp.json modules/cmpapi/package.json
+          jq --arg ver "$VERSION" '.version = $ver' modules/stub/package.json > temp.json && mv temp.json modules/stub/package.json
       - name: Commit and Push Changes
         run: |
           git config --global user.name "GitHub Actions"
@@ -33,11 +35,11 @@ jobs:
       - name: Publish to NPM
         run: npm --version
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       - name: Create GitHub Release
         run: |
           VERSION="${{ github.event.inputs.environment }}"
           echo "version $VERSION"
           gh release list
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.PAT}}
